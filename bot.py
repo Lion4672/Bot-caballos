@@ -1,13 +1,40 @@
-
 import os
-from telegram.ext import ApplicationBuilder, CommandHandler
+import requests
+from telebot import TeleBot
 
-BOT_TOKEN = os.environ["BOT_TOKEN"]
+# 🧪 Tokens desde las variables de entorno (Config Vars en Heroku)
+BOT_TOKEN = os.environ['BOT_TOKEN']
+BETSAPI_TOKEN = os.environ['BETSAPI_TOKEN']
 
-app = ApplicationBuilder().token(BOT_TOKEN).build()
+bot = TeleBot(BOT_TOKEN)
 
-async def start(update, context):
-    await update.message.reply_text("¡Hola! Soy tu bot de carreras de caballos 🐎")
+# 🧠 Comando /start para iniciar
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "🐎 ¡Hola! Soy tu bot de carreras y eventos en vivo de Bet365.\nEscribe /eventos para ver los que están activos.")
 
-app.add_handler(CommandHandler("start", start))
-app.run_polling()
+# 📡 Comando /eventos para ver eventos en vivo
+@bot.message_handler(commands=['eventos'])
+def eventos_en_vivo(message):
+    url = f'https://api.b365api.com/v1/bet365/inplay?token={BETSAPI_TOKEN}'
+
+    try:
+        response = requests.get(url)
+        data = response.json()
+
+        if 'results' in data and len(data['results']) > 0:
+            mensaje = "🎯 Eventos en vivo:\n"
+            for evento in data['results'][:5]:  # Limita a 5 eventos
+                nombre = evento.get('league', {}).get('name', 'Sin nombre')
+                teams = evento.get('home', {}).get('name', '') + " vs " + evento.get('away', {}).get('name', '')
+                mensaje += f"🏟️ {nombre}: {teams}\n"
+        else:
+            mensaje = "No hay eventos activos ahora mismo."
+
+    except Exception as e:
+        mensaje = f"❌ Error al obtener los datos: {e}"
+
+    bot.send_message(message.chat.id, mensaje)
+
+# 🚀 Inicia el bot
+bot.polling()
