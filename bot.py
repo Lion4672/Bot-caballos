@@ -35,7 +35,7 @@ def eventos_en_vivo(message):
 
                 teams = f"{home_name} vs {away_name}"
                 mensaje += f"🎰 {nombre}: {teams}\n"
-        else:
+         else:
             mensaje = "No hay eventos activos ahora mismo."
 
     except Exception as e:
