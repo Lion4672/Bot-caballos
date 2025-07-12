@@ -2,17 +2,17 @@ import requests
 from telebot import TeleBot
 
 # 🔐 Tokens directamente incrustados
-BOT_TOKEN = '7987693059:AAHB9ocnJ0-EX1HQhwjbzbew8kM2rG5NbA1'
+BOT_TOKEN = '7987693059:AAG_0wkdn4b_OAMxgbk2EwDl5pWx3ExzV9g'
 BETSAPI_TOKEN = '225739-82FzmJYirxBIAk'
 
 bot = TeleBot(BOT_TOKEN)
 
-# 🧠 Comando /start para iniciar
+# 🧠 Comando /start
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     bot.reply_to(message, "🐎 ¡Hola! Soy tu bot de carreras y eventos en vivo de Bet365.\nEscribe /eventos para ver los que están activos.")
 
-# 📡 Comando /eventos para ver eventos en vivo
+# 📡 Comando /eventos
 @bot.message_handler(commands=['eventos'])
 def eventos_en_vivo(message):
     url = f'https://api.b365api.com/v1/bet365/inplay?token={BETSAPI_TOKEN}'
