@@ -1,4 +1,3 @@
-
 import os
 import requests
 from telebot import TeleBot
@@ -26,16 +25,16 @@ def eventos_en_vivo(message):
         if 'results' in data and len(data['results']) > 0:
             mensaje = "🎯 Eventos en vivo:\n"
             for evento in data['results'][:5]:  # Limita a 5 eventos
-league = evento.get('league')
-home = evento.get('home')
-away = evento.get('away')
+                league = evento.get('league')
+                home = evento.get('home')
+                away = evento.get('away')
 
-nombre = league['name'] if isinstance(league, dict) and 'name' in league else 'Sin nombre'
-home_name = home['name'] if isinstance(home, dict) and 'name' in home else ''
-away_name = away['name'] if isinstance(away, dict) and 'name' in away else ''
+                nombre = league['name'] if isinstance(league, dict) and 'name' in league else 'Sin nombre'
+                home_name = home['name'] if isinstance(home, dict) and 'name' in home else ''
+                away_name = away['name'] if isinstance(away, dict) and 'name' in away else ''
 
-teams = f"{home_name} vs {away_name}"
-mensaje += f"🎰 {nombre}: {teams}\n"
+                teams = f"{home_name} vs {away_name}"
+                mensaje += f"🎰 {nombre}: {teams}\n"
         else:
             mensaje = "No hay eventos activos ahora mismo."
 
