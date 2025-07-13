@@ -1,4 +1,4 @@
-￼Enter file contents hereimport telebot
+import telebot
 import requests
 from datetime import datetime
 import os
