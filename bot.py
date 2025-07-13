@@ -52,10 +52,4 @@ def mostrar_eventos(message):
         if total_eventos == 0:
             bot.reply_to(message, "❌ No se encontraron eventos en este momento.")
         else:
-            bot.reply_to(message, mensaje, parse_mode="Markdown")
-    
-    except Exception as e:
-        bot.reply_to(message, f"❌ Error al obtener los datos: {str(e)}")
-
-# Ejecutar el bot
-bot.polling()
+            bot.repl
