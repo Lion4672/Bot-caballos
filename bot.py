@@ -16,7 +16,7 @@ def start(message):
 @bot.message_handler(commands=['eventos'])
 def mostrar_eventos(message):
     try:
-        # Llamada a la API de Bet365 (reemplaza con tu token si cambia)
+        # Llamada a la API de Bet365
         url = "https://api.b365api.com/v1/bet365/inplay?token=225739-82FzmJYirxBlAk"
         response = requests.get(url)
         data = response.json()
@@ -40,7 +40,7 @@ def mostrar_eventos(message):
                     liga = evento.get("L3", "Sin liga")
                     fecha_raw = evento.get("TU", "")
 
-                    # Convertir timestamp (si es válido)
+                    # Convertir timestamp
                     try:
                         fecha = datetime.utcfromtimestamp(int(fecha_raw)).strftime('%d-%m-%Y %H:%M')
                     except:
