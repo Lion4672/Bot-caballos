@@ -1,46 +1,61 @@
-import os
+import telebot
 import requests
-from telebot import TeleBot
+from datetime import datetime
+import os
 
-# Tokens desde las variables de entorno (Heroku Config Vars)
-BOT_TOKEN = os.environ['BOT_TOKEN']
-BETSAPI_TOKEN = os.environ['BETSAPI_TOKEN']
-
-bot = TeleBot(BOT_TOKEN)
+# Obtener el token del entorno (Heroku config var)
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+bot = telebot.TeleBot(BOT_TOKEN)
 
 # Comando /start
 @bot.message_handler(commands=['start'])
-def send_welcome(message):
-    bot.reply_to(message, "🐎 ¡Hola! Soy tu bot de carreras y eventos en vivo de Bet365.\nEscribe /eventos para ver los que están activos.")
+def start(message):
+    bot.reply_to(message, "¡Hola! 🐎 Soy tu bot de apuestas. Usa /eventos para ver los eventos en vivo.")
 
 # Comando /eventos
 @bot.message_handler(commands=['eventos'])
-def eventos_en_vivo(message):
-    url = f'https://api.b365api.com/v1/bet365/inplay?token={BETSAPI_TOKEN}'
-
+def mostrar_eventos(message):
     try:
+        # Llamada a la API de Bet365 (reemplaza con tu token si cambia)
+        url = "https://api.b365api.com/v1/bet365/inplay?token=225739-82FzmJYirxBlAk"
         response = requests.get(url)
         data = response.json()
 
-        if 'results' in data and len(data['results']) > 0:
-            mensaje = "🎯 Eventos en vivo:\n"
-            for evento in data['results'][:5]:  # Solo muestra 5 eventos
-                league = evento.get('league', {})
-                home = evento.get('home', {})
-                away = evento.get('away', {})
+        if data.get("success") != 1:
+            bot.reply_to(message, "❌ No se pudieron obtener los eventos (API falló).")
+            return
 
-                nombre = league.get('name', 'Sin nombre')
-                home_name = home.get('name', '')
-                away_name = away.get('name', '')
+        mensaje = "🏇 *Top 10 Eventos en Vivo (Bet365)*:\n\n"
+        total_eventos = 0
 
-                mensaje += f"🎰 {nombre}: {home_name} vs {away_name}\n"
+        for grupo in data["results"]:
+            for evento in grupo:
+                if isinstance(evento, dict):
+                    nombre = evento.get("NA", "Sin nombre")
+                    liga = evento.get("L3", "Sin liga")
+                    fecha_raw = evento.get("TU", "")
+
+                    # Convertir timestamp (si es válido)
+                    try:
+                        fecha = datetime.utcfromtimestamp(int(fecha_raw)).strftime('%d-%m-%Y %H:%M')
+                    except:
+                        fecha = "Sin hora"
+
+                    mensaje += f"📅 *{fecha}* - 🏆 _{liga}_\n🐎 {nombre}\n\n"
+                    total_eventos += 1
+
+                    if total_eventos >= 10:
+                        break
+            if total_eventos >= 10:
+                break
+
+        if total_eventos == 0:
+            bot.reply_to(message, "❌ No se encontraron eventos en este momento.")
         else:
-            mensaje = "No hay eventos activos ahora mismo."
-
+            bot.reply_to(message, mensaje, parse_mode="Markdown")
+    
     except Exception as e:
-        mensaje = f"❌ Error al obtener los datos: {e}"
-
-    bot.send_message(message.chat.id, mensaje)
+        bot.reply_to(message, f"❌ Error al obtener los datos: {str(e)}")
 
 # Ejecutar el bot
 bot.polling()
